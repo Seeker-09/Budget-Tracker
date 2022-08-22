@@ -9,6 +9,7 @@ const FILES_TO_CACHE = [
     '/index.html',
     '/manifest.json',
     '/css/styles.css',
+    '../routes/api.js',
     'icons/icon-72x72.png',
     'icons/icon-96x96.png',
     'icons/icon-128x128.png',
@@ -58,7 +59,7 @@ self.addEventListener('fetch', function(e) {
                 .then(cache => {
                     // if the response was good, clone it and store it in the cache
                     if(response.status === 200) {
-                        cache.put(e.request.url, response.clon())
+                        cache.put(e.request.url, response.clone())
                     }
 
                     return response
