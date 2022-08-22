@@ -1,6 +1,6 @@
 let db;
 
-const request = indexedDB.open('budget_tracker', 1)
+const request = indexedDB.open('budget', 1)
 
 // event will trigger on database version change
 request.onupgradeneeded = function(event) {
@@ -8,7 +8,7 @@ request.onupgradeneeded = function(event) {
     const db = event.target.result
 
     // create an object store
-    db.createObjectStore('new_budget', { autoIncrement: true })
+    db.createObjectStore('new_transaction', { autoIncrement: true })
 }
 
 // successful request
@@ -18,14 +18,14 @@ request.onsuccess = function(event) {
 
     // check if app is online
     if(navigator.onLine) {
-        uploadBudget()
+        uploadTransaction()
     }
 }
 
 // this function will execute if there is a new transaction created and there is no internet connection
 function saveRecord(record) {
     // open a new transaction with the database with read and write permissions
-    const transaction = db.transaction([ 'new_transaction'], 'readwrite')
+    const transaction = db.transaction(['new_transaction'], 'readwrite')
 
     // access the object store for 'new_transaction'
     const transactionObjectStore = transaction.objectStore('new_transaction')
@@ -48,7 +48,7 @@ function uploadTransaction() {
     getAll.onsuccess = function() {
         // if data in store, send to the api
         if(getAll.result.length > 0) {
-            fetch('/api/transaction', {
+            fetch('/api/transaction/bulk', {
                 method: 'POST', 
                 body: JSON.stringify(getAll.result),
                 headers: {
@@ -64,6 +64,9 @@ function uploadTransaction() {
 
                     // open another transaction
                     const transaction = db.transaction(['new_transaction'], 'readwrite')
+
+                    // access the store
+                    const transactionObjectStore = transaction.objectStore('new_transaction')
 
                     // clear items in store
                     transactionObjectStore.clear()
